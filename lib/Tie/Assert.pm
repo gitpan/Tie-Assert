@@ -4,7 +4,7 @@ use warnings;
 use Tie::Assert::CheckFactory;
 use Tie::Assert::Scalar;
 
-our $VERSION = '0.1';
+our $VERSION = '0.1_01';
 our $_assertions_enabled = 1;
 
 # This is for test purposes only.
@@ -73,7 +73,8 @@ Tie::Assert - Enforces restrictions on variables' contents
 
 =head1 VERSION
 
-This document refers to version 0.1 of Tie::Assert, released October 4th 2004.
+This document refers to version 0.1_01 of Tie::Assert, released
+October 6th 2004.
 
 =head1 SYNOPSIS
 
@@ -165,7 +166,7 @@ upon to change the way the Tie::Assert class affects it.
 There's a keyword named tied() which returns the object behind a given
 tied variable, so we can obtain the object behind $positive_number by:
 
-  my $positive_number_object = ties($positive_number);
+  my $positive_number_object = tied($positive_number);
 
 If we want we can skip storing the tied object in a variable itself
 and simply call methods directly on it, it's this format that'll be used

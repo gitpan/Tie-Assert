@@ -1,0 +1,9 @@
+Tie::Assert 
+
+0.1    - Initial release.
+0.1_01 - Added the README file.	
+         Changed Build.PL to also create Makefile.PL for traditional build.
+         Fixed a typo in the documentation where the tied() keyword was
+	  spelt ties().
+
+

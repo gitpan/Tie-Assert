@@ -5,7 +5,7 @@ use Carp;
 use Tie::Assert;
 use base qw/Tie::Assert/;
 
-our $VERSION = 0.1; 
+our $VERSION = '0.1_01'; 
 
 sub TIESCALAR {
   my $class = shift;
@@ -47,8 +47,8 @@ Tie::Assert::Scalar - Scalar implementation of Tie::Assert
 
 =head1 VERSION
 
-This document refers to version 0.1 of Tie::Assert::Scalar, released
-October 4th 2004.
+This document refers to version 0.1_01 of Tie::Assert::Scalar, released
+October 6th 2004.
 
 =head1 SYNOPSIS
 
