@@ -5,7 +5,7 @@ use B;
 use B::Flags;
 use Tie::Assert;
 
-our $VERSION = 0.12; 
+our $VERSION = 0.13; 
 
 # A collection of closures so we're able to produce them as flyweights.
 our $_closures = {
@@ -156,8 +156,8 @@ Tie::Assert::CheckFactory - Creates checks for Tie::Assert
 
 =head1 VERSION
 
-This document refers to version 0.12 of Tie::Assert::CheckFactory,
-released Oct 13th 2004.
+This document refers to version 0.13 of Tie::Assert::CheckFactory,
+released 8th March 2005.
 
 =head1 SYNOPSIS
 

@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 164; 
+use Test::More qw/no_plan/; # TODO: tests => 164; 
 
 BEGIN {
   diag "Testing modules can be use'd";
   use_ok('Tie::Assert');
+  use_ok('Tie::Assert::Array');
   use_ok('Tie::Assert::Scalar');
   use_ok('Tie::Assert::CheckFactory');
 }
@@ -157,6 +158,238 @@ diag "Testing Tie::Assert::Scalar";
   is ($a, 15, 'Value remains unchanged');
 }
 
+diag "Testing Tie::Assert::Array";
+{
+  my @a;
+  ok (tie (@a, 'Tie::Assert::Array'), 'Can do simple no-arg ties');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      index_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 
+    'Can do single filter index tie'
+  );
+  eval {$a[99] = 'Okay'};
+  is ($@, '', 'Can safely assign to valid index');
+  is ($#a, 99, 'Array is expected size');
+  is ($a[99], 'Okay', 'Value is set as expected');
+  eval {$a[101] = 'NOK'};
+  ok ($@ =~ /^\'maxCheck\' index constraint violated/,
+    'Cannot set value of invalid index');
+  is ($#a, 99, 'Array size unchanged');
+  eval {$a[23] = 120};
+  is ($@, '', 'Index filters do not apply to values');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 'Can do single filter array tie'
+  );
+  eval {$a[23] = 99};
+  is ($@, '', 'Can assign valid values');
+  is ($a[23], 99, 'Value set as expected');
+  eval {$a[23] = 101};
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Cannot assign invalid values');
+  is ($a[23], 99, 'Value unchanged');
+  eval {$a[101] = 23};
+  is ($@, '', 'Value filters do not apply to indexes');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      index_filters => {
+        minCheck => Tie::Assert::CheckFactory->min(10),
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+      value_filters => {
+        minCheck => Tie::Assert::CheckFactory->min(500),
+        maxCheck => Tie::Assert::CheckFactory->max(1000),
+      },
+    ), 'Can tie to multiple value and index filters',
+  );
+  eval { $a[12] = 750 };
+  is ($@, '', 'Can assign valid values to valid indexes');
+  eval { $a[9]  = 750 };
+  ok ($@ =~ /^\'minCheck\' index constraint violated/,
+    'Min Check works on indexes');
+  eval { $a[101]  = 750 };
+  ok ($@ =~ /^\'maxCheck\' index constraint violated/,
+    'Max Check works on indexes');
+  eval { $a[50] = 499 };
+  ok ($@ =~ /^\'minCheck\' value constraint violated/,
+    'Min check works on values');
+  eval { $a[50] = 1001 };
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Max check works on values');
+
+  ok (!(tied(@a)->remove_index_check('nosuch')),
+    'Removing non-existant index filter returns false');
+  ok (!(tied(@a)->remove_value_check('nosuch')),
+    'Removing non-existant value filter returns false');
+  
+  ok (tied(@a)->remove_index_check('minCheck'),
+    'Can remove minCheck index filter');
+  eval { $a[9]  = 750 };
+  is ($@, '', 'Min check removed from index filters');
+  eval { $a[50] = 499 };
+  ok ($@ =~ /^\'minCheck\' value constraint violated/,
+    'Min check still applies to values');
+  ok (tied(@a)->remove_value_check('minCheck'),
+    'Can remove minCheck value filter');
+  eval { $a[50] = 499 };
+  is ($@, '', 'Min check removed from value filters');
+
+  ok (tied(@a)->remove_value_check('maxCheck'),
+    'Can remove maxCheck value filter');
+  eval { $a[50] = 499 };
+  is ($@, '', 'Max check removed from value filters');
+  eval { $a[10000] = 150 };
+  ok ($@ =~ /^\'maxCheck\' index constraint violated/,
+    'Max check still applies to indices');
+  ok (tied(@a)->remove_index_check('maxCheck'),
+    'Can remove maxCheck index filter');
+  eval { $a[10000]  = 150 };
+  is ($@, '', 'Min check removed from index filters');
+}
+{
+  my @a;
+  ok (tie (@a, 'Tie::Assert::Array'), 'Can tie to no-check array');
+  eval {$a[1] = 1 && $a[11] = 1 && $a[1] = 11};
+  is ($@, '', 'No problem assigning when no filters in place');
+  ok (
+    tied(@a)->add_index_check(
+      maxIndexCheck => Tie::Assert::CheckFactory->max(10),
+    ),
+    'Can add a maximum to index'
+  );
+  eval {$a[1] = 1};
+  is ($@, '', 'No problems assigning within max');
+  eval {$a[11] = 12};
+  ok ($@ =~ /^\'maxIndexCheck\' index constraint violated/,
+    'Can no longer assign beyond max');
+  ok (
+    tied(@a)->add_value_check(
+      minValueCheck => Tie::Assert::CheckFactory->min(10),
+    ),
+    'Can add a minimum to value',
+  );
+  eval {$a[1] = 1};
+  ok ($@ =~ /^\'minValueCheck\' value constraint violated/,
+    'Can no longer assign values below min');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 'Can do single filter array tie'
+  );
+  ok (
+    push (@a, 10, 11, 12),
+    'Can push elements onto tied array'
+  );
+  is (
+    push (@a, 13, 15),
+    5,
+    'Push returns new number of items'
+  );
+  eval { push @a, 16, 1600 };
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Cannot push out-of-range values');
+  is_deeply ([@a], [10,11,12,13,15],
+    'Values on stack as expected'
+  );
+  is (pop (@a), 15, 'Value popped as expected');
+  is (pop (@a), 13, 'Value popped as expected');
+  is (pop (@a), 12, 'Value popped as expected');
+  is (pop (@a), 11, 'Value popped as expected');
+  is (pop (@a), 10, 'Value popped as expected');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 'Can do single filter array tie'
+  );
+  ok (
+    unshift (@a, 10, 11, 12),
+    'Can unshift elements onto tied array'
+  );
+  is (
+    unshift (@a, 13, 15),
+    5,
+    'Unshift returns new number of items'
+  );
+  eval { unshift @a, 16, 1600 };
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Cannot unshift out-of-range values');
+  is_deeply ([@a], [13,15,10,11,12],
+    'Values on stack as expected'
+  );
+  is (shift (@a), 13, 'Value shifted as expected');
+  is (shift (@a), 15, 'Value shifted as expected');
+  is (shift (@a), 10, 'Value shifted as expected');
+  is (shift (@a), 11, 'Value shifted as expected');
+  is (shift (@a), 12, 'Value shifted as expected');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 'Can do single filter array tie'
+  );
+  eval {$#a = 100};
+  is ($@, '', 'Can storesize');
+  is ($#a, 100, 'Fetchsize returns set size');
+}
+{
+  my @a;
+  ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ), 'Can do single filter array tie'
+  );
+  eval {@a = (1,2,3,150)};
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Cannot load array with invalid values');
+}
+{
+  my @a;
+ ok (
+    tie (@a, 'Tie::Assert::Array',
+      value_filters => {
+        maxCheck => Tie::Assert::CheckFactory->max(100),
+      },
+    ),'Can do single filter array tie'
+  );
+  @a = (0,1,2,3,4,5,6,7,8,9,10);
+  eval {splice (@a, 2, 2, 23, 24, 25)};
+  is_deeply([@a], [0,1,23,24,25,4,5,6,7,8,9,10], 'Can splice tied array');
+  eval {splice (@a, 0, 1, 101)};
+  ok ($@ =~ /^\'maxCheck\' value constraint violated/,
+    'Cannot splice array with invalid values');
+  is_deeply([@a], [0,1,23,24,25,4,5,6,7,8,9,10], 'Array unaffected');
+}
 diag "Testing Tie::Assert::CheckFactory";
 {
   my $a;

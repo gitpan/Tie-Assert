@@ -5,7 +5,7 @@ use Carp;
 use Tie::Assert;
 use base qw/Tie::Assert/;
 
-our $VERSION = '0.12'; 
+our $VERSION = '0.13'; 
 
 sub TIESCALAR {
   my $class = shift;
@@ -24,8 +24,8 @@ sub FETCH {
 sub STORE {
   my ($self, $value) = @_;
   if (Tie::Assert->is_enabled) {
-    for my $filter (keys %{$self->{_filters}}) {
-      next if $self->{_filters}{$filter}->($value);
+    for my $filter (keys %{$self->{_filters}{_default}}) {
+      next if $self->{_filters}{_default}{$filter}->($value);
       if (exists $self->{_handler}) {
         $self->{_handler}($filter);
         return $self->{_value};
@@ -47,8 +47,8 @@ Tie::Assert::Scalar - Scalar implementation of Tie::Assert
 
 =head1 VERSION
 
-This document refers to version 0.12 of Tie::Assert::Scalar, released
-October 13th 2004.
+This document refers to version 0.13 of Tie::Assert::Scalar, released
+8th March 2005. 
 
 =head1 SYNOPSIS
 
@@ -79,7 +79,7 @@ Paul Golds (Paul.Golds@GMail.com)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004, Paul Golds.  All Rights Reserved.
+Copyright (c) 2004/2005, Paul Golds.  All Rights Reserved.
 This module is free software.  It may be used, redistributed,
 and/or modified under the same terms as Perl itself.
 

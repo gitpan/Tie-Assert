@@ -1,5 +1,8 @@
 Tie::Assert 
 
+0.20   - Major changes.  The addition of the Tie::Assert::Array and
+          Tie::Assert::Hash classes, and a rewriting of the internal
+	  representation of filters to support this.
 0.12   - The Build.PL had 'requires' typoed as 'required', breaking the
           installation on machines without B::Flags.  This has been
 	  fixed.

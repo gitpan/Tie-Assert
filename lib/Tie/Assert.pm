@@ -4,8 +4,9 @@ use warnings;
 use Tie::Assert::CheckFactory;
 use Tie::Assert::Scalar;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 our $_assertions_enabled = 1;
+our $_default_filter_set = '_default';
 
 # This is for test purposes only.
 sub _new {
@@ -29,32 +30,55 @@ sub is_enabled {
 
 
 sub add_check {
-  my ($self, $filter_name, $filter_code) = @_;
-  $self->{_filters}{$filter_name} = $filter_code;
+  my ($self, $filter_name, $filter_code, $filter_set) = @_;
+  $filter_set = $_default_filter_set unless defined $filter_set;
+  unless ($self->_filter_set_exists($filter_set)) {
+    $self->{_filters}{$filter_set} = {};
+  }
+  $self->{_filters}{$filter_set}{$filter_name} = $filter_code;
 }
 
 sub filter_names {
-  my ($self) = @_;
-  return sort keys %{$self->{_filters}};
+  my ($self, $filter_set) = @_;
+  $filter_set = $_default_filter_set unless defined $filter_set;
+  unless ($self->_filter_set_exists($filter_set)) {
+    return ();
+  }
+  return sort keys %{$self->{_filters}{$filter_set}};
+}
+
+sub _filter_set_exists {
+  my ($self, $filter_set) = @_;
+  $filter_set = $_default_filter_set unless defined $filter_set;
+  return exists $self->{_filters}{$filter_set};
 }
 
 sub remove_check {
-  my ($self, $filter_name) = @_;
-  my $filter_exists = exists $self->{_filters}{$filter_name};
-  delete ($self->{_filters}{$filter_name});
+  my ($self, $filter_name, $filter_set) = @_;
+  $filter_set = $_default_filter_set unless defined $filter_set;
+  unless ($self->_filter_set_exists($filter_set)) {
+    return 0;
+  }
+  my $filter_exists = exists $self->{_filters}{$filter_set}{$filter_name};
+  delete ($self->{_filters}{$filter_set}{$filter_name});
   return $filter_exists;
 }
 
 sub remove_all_checks {
-  my ($self) = @_;
+  my ($self, $filter_set) = @_;
   my $filter_count = $self->count_filters();
-  $self->{_filters} = {};
+  if (defined $filter_set) {
+    $self->{_filters}{$filter_set} = {};
+  } else {
+    $self->{_filters} = {};
+  }
   return $filter_count;
 }
 
 sub count_filters {
-  my ($self) = @_;
-  return scalar(keys %{$self->{_filters}});
+  my ($self, $filter_set) = @_;
+  $filter_set = $_default_filter_set unless defined $filter_set;
+  return scalar(keys %{$self->{_filters}{$filter_set}});
 }
 
 sub set_error_handler {
@@ -62,7 +86,7 @@ sub set_error_handler {
   $self->{_handler} = $handler;
   return 1;
 }
-				  
+
 1;
 
 __END__
@@ -73,8 +97,8 @@ Tie::Assert - Enforces restrictions on variables' contents
 
 =head1 VERSION
 
-This document refers to version 0.12 of Tie::Assert, released
-October 13th 2004.
+This document refers to version 0.13 of Tie::Assert, released
+March 8th 2005.
 
 =head1 SYNOPSIS
 
@@ -100,6 +124,11 @@ October 13th 2004.
   );
   $positive_number = 23;   # A valid positive number
   $positive_number = -1;   # Invalid, another error.
+
+=head2 Arrays
+
+For usage of Tie::Assert with arrays please refer to the Perldoc for
+Tie::Assert::Array.
 
 =head1 DESCRIPTION
 
@@ -331,6 +360,14 @@ error, and the original value.
 Hopefully a version with all of these changes should be released
 within a week or so.
 
+=head1 THANKS TO
+
+Mike Castle - Pointed out an error in the Build.PL's requirements. 
+
+..and various folks from Perlmonks.org - For helping me thrash out the
+initial thoughts of this module in the Chatterbox, and also suggesting
+a better name than the one I had.
+
 =head1 BUGS
 
 No known bugs at present.
@@ -345,7 +382,7 @@ Paul Golds (Paul.Golds@GMail.com)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004, Paul Golds.  All Rights Reserved.
+Copyright (c) 2004/2005, Paul Golds.  All Rights Reserved.
 This module is free software.  It may be used, redistributed,
 and/or modified under the same terms as Perl itself.
 

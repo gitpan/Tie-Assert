@@ -9,7 +9,8 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Test::More' => '0.47',
                            'B::Flags' => '0.01',
-                           'B::' => '1.02'
+                           'Params::Validate' => '0.74',
+                           'B' => '1.02'
                          }
         )
 ;

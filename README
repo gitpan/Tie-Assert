@@ -2,8 +2,8 @@ NAME
     Tie::Assert - Enforces restrictions on variables' contents
 
 VERSION
-    This document refers to version 0.12 of Tie::Assert, released October
-    13th 2004.
+    This document refers to version 0.13 of Tie::Assert, released March 8th
+    2005.
 
 SYNOPSIS
       # Tie a few scalars...
@@ -28,6 +28,10 @@ SYNOPSIS
       );
       $positive_number = 23;   # A valid positive number
       $positive_number = -1;   # Invalid, another error.
+
+  Arrays
+    For usage of Tie::Assert with arrays please refer to the Perldoc for
+    Tie::Assert::Array.
 
 DESCRIPTION
     Tie::Assert is designed to fill the niche when Perl developers need to
@@ -234,6 +238,13 @@ NOTE
     Hopefully a version with all of these changes should be released within
     a week or so.
 
+THANKS TO
+    Mike Castle - Pointed out an error in the Build.PL's requirements.
+
+    ..and various folks from Perlmonks.org - For helping me thrash out the
+    initial thoughts of this module in the Chatterbox, and also suggesting a
+    better name than the one I had.
+
 BUGS
     No known bugs at present.
 
@@ -244,7 +255,7 @@ AUTHOR
     Paul Golds (Paul.Golds@GMail.com)
 
 COPYRIGHT
-    Copyright (c) 2004, Paul Golds. All Rights Reserved. This module is free
-    software. It may be used, redistributed, and/or modified under the same
-    terms as Perl itself.
+    Copyright (c) 2004/2005, Paul Golds. All Rights Reserved. This module is
+    free software. It may be used, redistributed, and/or modified under the
+    same terms as Perl itself.
 
