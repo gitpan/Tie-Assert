@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Tie-Assert
-version: 0.1_01
+version: 0.11
 author: Paul Golds <Paul.Golds@GMail.com>
 abstract: Enforces restrictions on variables' contents
 license: perl
@@ -9,11 +9,11 @@ build_requires:
 provides:
   Tie::Assert:
     file: lib/Tie/Assert.pm
-    version: 0.1_01
+    version: 0.11
   Tie::Assert::CheckFactory:
     file: lib/Tie/Assert/CheckFactory.pm
-    version: 0.101
+    version: 0.11
   Tie::Assert::Scalar:
     file: lib/Tie/Assert/Scalar.pm
-    version: 0.1_01
+    version: 0.11
 generated_by: Module::Build version 0.25

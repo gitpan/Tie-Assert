@@ -2,7 +2,7 @@ NAME
     Tie::Assert - Enforces restrictions on variables' contents
 
 VERSION
-    This document refers to version 0.1_01 of Tie::Assert, released October
+    This document refers to version 0.11 of Tie::Assert, released October
     6th 2004.
 
 SYNOPSIS

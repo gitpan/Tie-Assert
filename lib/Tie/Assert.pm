@@ -4,7 +4,7 @@ use warnings;
 use Tie::Assert::CheckFactory;
 use Tie::Assert::Scalar;
 
-our $VERSION = '0.1_01';
+our $VERSION = '0.11';
 our $_assertions_enabled = 1;
 
 # This is for test purposes only.
@@ -73,7 +73,7 @@ Tie::Assert - Enforces restrictions on variables' contents
 
 =head1 VERSION
 
-This document refers to version 0.1_01 of Tie::Assert, released
+This document refers to version 0.11 of Tie::Assert, released
 October 6th 2004.
 
 =head1 SYNOPSIS
