@@ -11,7 +11,7 @@ my $build = Module::Build->new (
   module_name 	     => 'Tie::Assert',
   license 	     => 'perl',
 
-  required           => {
+  requires           => {
     'B::'            => 1.02,
     'B::Flags'       => 0.01,
   },

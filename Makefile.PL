@@ -7,7 +7,9 @@ WriteMakefile
           'NAME' => 'Tie::Assert',
           'VERSION_FROM' => 'lib/Tie/Assert.pm',
           'PREREQ_PM' => {
-                           'Test::More' => '0.47'
+                           'Test::More' => '0.47',
+                           'B::Flags' => '0.01',
+                           'B::' => '1.02'
                          }
         )
 ;

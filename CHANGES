@@ -1,5 +1,8 @@
 Tie::Assert 
 
+0.12   - The Build.PL had 'requires' typoed as 'required', breaking the
+          installation on machines without B::Flags.  This has been
+	  fixed.
 0.11   - Rationalised the version number, no actual code/doc changes beyond
           this
 0.1_01 - Added the README file.	
